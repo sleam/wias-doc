@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>API Reference</title>
+    <title>WIAS API Reference</title>
 
     <style>
       .highlight table td { padding: 5px; }
@@ -201,7 +201,7 @@
       <script src="javascripts/all.js"></script>
   </head>
 
-  <body class="index" data-languages="[&quot;shell&quot;,&quot;ruby&quot;,&quot;python&quot;,&quot;javascript&quot;]">
+  <body class="index" data-languages="[&quot;shell&quot;,&quot;javascript&quot;]">
     <a href="#" id="nav-button">
       <span>
         NAV
@@ -212,8 +212,6 @@
       <img src="images/logo.png" class="logo" alt="Logo" />
         <div class="lang-selector">
               <a href="#" data-language-name="shell">shell</a>
-              <a href="#" data-language-name="ruby">ruby</a>
-              <a href="#" data-language-name="python">python</a>
               <a href="#" data-language-name="javascript">javascript</a>
         </div>
         <div class="search">
@@ -222,31 +220,34 @@
         <ul class="search-results"></ul>
       <div id="toc" class="toc-list-h1">
           <li>
-            <a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a>
+            <a href="#introduction" class="toc-h1 toc-link" data-title="introduction">Introduction</a>
           </li>
           <li>
-            <a href="#authentication" class="toc-h1 toc-link" data-title="Authentication">Authentication</a>
+            <a href="#authentication" class="toc-h1 toc-link" data-title="authentication">Authentication</a>
           </li>
           <li>
-            <a href="#kittens" class="toc-h1 toc-link" data-title="Kittens">Kittens</a>
+            <a href="#interactions" class="toc-h1 toc-link" data-title="interactions">Interactions</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#get-all-kittens" class="toc-h2 toc-link" data-title="Get All Kittens">Get All Kittens</a>
+                    <a href="#create-a-new-interaction" class="toc-h2 toc-link" data-title="create-a-new-interaction">Create a New Interaction</a>
                   </li>
                   <li>
-                    <a href="#get-a-specific-kitten" class="toc-h2 toc-link" data-title="Get a Specific Kitten">Get a Specific Kitten</a>
+                    <a href="#get-all-interactions" class="toc-h2 toc-link" data-title="get-all-interactions">Get All Interactions</a>
                   </li>
                   <li>
-                    <a href="#delete-a-specific-kitten" class="toc-h2 toc-link" data-title="Delete a Specific Kitten">Delete a Specific Kitten</a>
+                    <a href="#get-a-specific-interaction" class="toc-h2 toc-link" data-title="get-a-specific-interaction">Get a Specific Interaction</a>
                   </li>
               </ul>
           </li>
           <li>
-            <a href="#errors" class="toc-h1 toc-link" data-title="Errors">Errors</a>
+            <a href="#common-query-params" class="toc-h1 toc-link" data-title="common-query-params">Common Query Params</a>
+          </li>
+          <li>
+            <a href="#errors" class="toc-h1 toc-link" data-title="errors">Errors</a>
           </li>
       </div>
         <ul class="toc-footer">
-            <li><a href='#'>Sign Up for a Developer Key</a></li>
+            <li><a href='https://devs.wias.kopjra.com/signup'>Sign Up for a Developer Key</a></li>
             <li><a href='https://github.com/lord/slate'>Documentation Powered by Slate</a></li>
         </ul>
     </div>
@@ -254,133 +255,216 @@
       <div class="dark-box"></div>
       <div class="content">
         <h1 id='introduction'>Introduction</h1>
-<p>Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.</p>
+<p>Welcome to Web Interaction Acquisition Service API! You can use our API to access Web Interaction Acquisition Service
+API endpoints, which is everything you need to do to forensically acquire an interaction happening between your customer
+and your services.</p>
 
-<p>We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
+<p>If you are still unfamiliar with the process used by WIAS, it&#39;d be better if you read our <a href="https://www.kopjra.com/wias">introductory documentation</a>.</p>
 
-<p>This example API documentation page was created with <a href="https://github.com/lord/slate">Slate</a>. Feel free to edit it and use it as a base for your own API&#39;s documentation.</p>
+<p>We have language bindings in Shell and Javascript (Node.js)! You can view code examples in the dark area to the right, and you can
+switch the programming language of the examples with the tabs in the top right. You can <a href="https://devs.wias.kopjra.com/clients">download our clients here</a>.</p>
 <h1 id='authentication'>Authentication</h1>
 <blockquote>
 <p>To authorize, use this code:</p>
 </blockquote>
-<pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<pre class="highlight shell tab-shell"><code><span class="c"># With shell, you can just pass the correct header with each request</span>
+curl <span class="s2">"https://gateway.wias.kopjra.com/api"</span>
+  -H <span class="s2">"Accept: application/json"</span>
+  -H <span class="s2">"Authorization: apikey"</span>
+</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">wias</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'@kopjra/wias'</span><span class="p">);</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre><pre class="highlight shell tab-shell"><code><span class="c"># With shell, you can just pass the correct header with each request</span>
-curl <span class="s2">"api_endpoint_here"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
+<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">wias</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'apikey'</span><span class="p">);</span>
 </code></pre>
 <blockquote>
-<p>Make sure to replace <code>meowmeowmeow</code> with your API key.</p>
+<p>Make sure to replace <code>apikey</code> with your API key.</p>
 </blockquote>
 
-<p>Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our <a href="http://example.com/developers">developer portal</a>.</p>
+<p>WIAS uses API keys to allow access to the API. You can register a new WIAS API key at our <a href="https://devs.wias.kopjra.com/">developer portal</a>.</p>
 
-<p>Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:</p>
+<p>WIAS expects for the API key to be included in all API requests to the server in a header that looks like the following:</p>
 
-<p><code>Authorization: meowmeowmeow</code></p>
+<p><code>Authorization: apikey</code></p>
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+You must replace <code>apikey</code> with your personal API key.
 </aside>
-<h1 id='kittens'>Kittens</h1><h2 id='get-all-kittens'>Get All Kittens</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<h1 id='interactions'>Interactions</h1>
+<p>The Interaction represents the minimum entity that can be forensically acquired, stored and retrieved. It represents a
+specific action done by one of your users, plus the context (ie: the web page that he/she sees when he/she does that
+action).</p>
+<h2 id='create-a-new-interaction'>Create a New Interaction</h2>
+<p>Before you can acquire an action done by one of your users (and its context), you need to create a new Interaction, and
+redirect your user to the forward URL specifically provided by WIAS: you will find this URL (<code>fURL</code>) inside
+the body of the response of this call.</p>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">kittens</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="nx">get</span><span class="p">();</span>
-</code></pre>
-<blockquote>
-<p>The above command returns JSON structured like this:</p>
-</blockquote>
-<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Fluffums"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"calico"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">]</span><span class="w">
-</span></code></pre>
-<p>This endpoint retrieves all kittens.</p>
-<h3 id='http-request'>HTTP Request</h3>
-<p><code>GET http://example.com/api/kittens</code></p>
-<h3 id='query-parameters'>Query Parameters</h3>
-<table><thead>
-<tr>
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>include_cats</td>
-<td>false</td>
-<td>If set to true, the result will also include cats.</td>
-</tr>
-<tr>
-<td>available</td>
-<td>true</td>
-<td>If set to false, the result will include kittens that have already been adopted.</td>
-</tr>
-</tbody></table>
-
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
+<aside class="notice">
+At the end of this call, remember to redirect your user to <code>fURL</code>!
 </aside>
-<h2 id='get-a-specific-kitten'>Get a Specific Kitten</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
+<p>Since we implement none of your backend business logic, the user&#39;s request will eventually be re-submitted directly by
+the user to your web server, so you must provide us with the <code>oURL</code> locating the endpoint where the user would
+re-submit his request.</p>
 
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens/2"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
+<p>In addition, you need to provide us with some HTML that will be the context on which the user is going to do his action.
+The user&#39;s action could be for instance a form submission (a <code>POST</code> or a <code>GET</code>) or the click on a
+link (only a <code>GET</code>). In both cases, you have to pre-render the HTML on your server and give it to us, as well
+as the indication about the HTTP Method of your user&#39;s action.</p>
 
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<aside class="notice">
+Within your pre-rendered HTML, remember to replace the URL where you originally intended to handle the user action with
+ the <code><%= e_url %></code> placeholder. You'd put that URL in the field <code>oURL</code> of the Create Interaction
+ request.
+</aside>
+
+<p>Finally, you can also decide to put any tag on your interaction.</p>
+
+<aside class="warning">
+Future retrievals requests can only done by matching Interaction ID or custom tags! We won't be able to fetch the data
+contained in your pre-rendered HTML or in the content submitted by your user's action.
+</aside>
+<pre class="highlight shell tab-shell"><code>curl <span class="s2">"https://gateway.wias.kopjra.com/api/interactions"</span>
+  -X DELETE
+  -d <span class="s1">'{"oURL": "http://someurl.com", "oMethod": "POST", "prerenderedHtml": "&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;Title&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;strong&gt;E_URL: &lt;/strong&gt;&lt;%= e_url %&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;F_URL: &lt;/strong&gt;&lt;%= f_url %&gt;&lt;/p&gt;&lt;p&gt;Sample text.&lt;/p&gt;&lt;form action="&lt;%= e_url %&gt;" method="post"&gt;&lt;fieldset&gt;&lt;legend&gt;Stuffity stuff:&lt;/legend&gt;&lt;input type="radio" name="st1" value="true"&gt;Yep&lt;/input&gt;&lt;input type="radio" name="st1" value="false"&gt;Nay&lt;/input&gt;&lt;/fieldset&gt;&lt;fieldset&gt;&lt;legend&gt;Lalaland:&lt;/legend&gt;&lt;input type="radio" name="st2" value="true"&gt;Great movie&lt;/input&gt;&lt;input type="radio" name="st2" value="false"&gt;Bad movie&lt;/input&gt;&lt;/fieldset&gt;&lt;input type="submit" value="Invia" /&gt;&lt;/form&gt;&lt;/body&gt;&lt;/html&gt;", "tags": {"foo": "bar", "baz": "woo"}}'</span>
+  -H <span class="s2">"Accept: application/json"</span>
+  -H <span class="s2">"Content-Type: application/json"</span>
+  -H <span class="s2">"Authorization: apikey"</span>
+</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">wias</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'@kopjra/wias'</span><span class="p">);</span>
+
+<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">wias</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'apikey'</span><span class="p">);</span>
+<span class="kd">let</span> <span class="nx">interaction</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s2">"oURL"</span><span class="p">:</span> <span class="s2">"http://someurl.com"</span><span class="p">,</span>
+  <span class="s2">"oMethod"</span><span class="p">:</span> <span class="s2">"POST"</span><span class="p">,</span>
+  <span class="s2">"prerenderedHtml"</span><span class="p">:</span> <span class="s2">"&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;Title&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;strong&gt;E_URL: &lt;/strong&gt;&lt;%= e_url %&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;F_URL: &lt;/strong&gt;&lt;%= f_url %&gt;&lt;/p&gt;&lt;p&gt;Sample text.&lt;/p&gt;&lt;form action="</span><span class="o">&lt;%=</span> <span class="nx">e_url</span> <span class="o">%&gt;</span><span class="s2">" method="</span><span class="nx">post</span><span class="s2">"&gt;&lt;fieldset&gt;&lt;legend&gt;Stuffity stuff:&lt;/legend&gt;&lt;input type="</span><span class="nx">radio</span><span class="s2">" name="</span><span class="nx">st1</span><span class="s2">" value="</span><span class="kc">true</span><span class="s2">"&gt;Yep&lt;/input&gt;&lt;input type="</span><span class="nx">radio</span><span class="s2">" name="</span><span class="nx">st1</span><span class="s2">" value="</span><span class="kc">false</span><span class="s2">"&gt;Nay&lt;/input&gt;&lt;/fieldset&gt;&lt;fieldset&gt;&lt;legend&gt;Lalaland:&lt;/legend&gt;&lt;input type="</span><span class="nx">radio</span><span class="s2">" name="</span><span class="nx">st2</span><span class="s2">" value="</span><span class="kc">true</span><span class="s2">"&gt;Great movie&lt;/input&gt;&lt;input type="</span><span class="nx">radio</span><span class="s2">" name="</span><span class="nx">st2</span><span class="s2">" value="</span><span class="kc">false</span><span class="s2">"&gt;Bad movie&lt;/input&gt;&lt;/fieldset&gt;&lt;input type="</span><span class="nx">submit</span><span class="s2">" value="</span><span class="nx">Invia</span><span class="s2">" /&gt;&lt;/form&gt;&lt;/body&gt;&lt;/html&gt;"</span><span class="p">,</span>
+  <span class="s2">"tags"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">"foo"</span><span class="p">:</span> <span class="s2">"bar"</span><span class="p">,</span>
+    <span class="s2">"baz"</span><span class="p">:</span> <span class="s2">"woo"</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+<span class="kd">let</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">interactions</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
 </code></pre>
 <blockquote>
 <p>The above command returns JSON structured like this:</p>
 </blockquote>
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">86</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"fUrl"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"https://gateway.wias.kopjra.com/api/i/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpX2lkIjo4OSwiaWF0IjoxNTE5MjEwODc4LCJleHAiOjE1MTkyMTQ0Nzh9.QLoyvZPl2_KgxyupbjWJXESwOnkhzGDo4vr4i8GjYa8"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h3 id='http-request'>HTTP Request</h3>
+<p><code>POST https://gateway.wias.kopjra.com/api/interactions</code></p>
+<h3 id='json-body-keys'>JSON Body Keys</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Mandatory</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>oURL</td>
+<td>Yes</td>
+<td>The URL where the request was originally intended to go. At the end of the acquisition process, the user will re-submit the request to this URL. Your service should be ready to serve the user&#39;s request here.</td>
+</tr>
+<tr>
+<td>oMethod</td>
+<td>Yes</td>
+<td>The type of request to acquire (and re-submit to your service). Only &#39;POST&#39; and &#39;GET&#39; supported.</td>
+</tr>
+<tr>
+<td>prerenderedHtml</td>
+<td>Yes</td>
+<td>The pre-prendered HTML to be displayed by our web server. It must contain the string &#39;&lt;%= e_url %&gt;&#39; somewhere.</td>
+</tr>
+<tr>
+<td>tags</td>
+<td>No</td>
+<td>An object representing the tags to be added to the Interaction. Note: tag names can only contain US-ASCII letters and/or numbers, whereas tag values can be any UTF-8 string.</td>
+</tr>
+</tbody></table>
+<h2 id='get-all-interactions'>Get All Interactions</h2>
+<p>You can use this endpoint to get all of your Interactions. In the future, you will also be able to search among
+Interactions using custom tags (still to be implemented).</p>
+<pre class="highlight shell tab-shell"><code>curl <span class="s2">"https://gateway.wias.kopjra.com/api/interactions"</span>
+  -H <span class="s2">"Authorization: apikey"</span>
+</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">wias</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'@kopjra/wias'</span><span class="p">);</span>
+
+<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">wias</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'apikey'</span><span class="p">);</span>
+<span class="kd">let</span> <span class="nx">interactions</span> <span class="o">=</span> <span class="nx">await</span> <span class="nx">api</span><span class="p">.</span><span class="nx">interactions</span><span class="p">.</span><span class="nx">get</span><span class="p">();</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">83</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"oURL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://node-dumb-listening-server.herokuapp.com/"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"hasPrerenderedHtml"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"expirationPeriod"</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"expiresAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T14:25:57.000Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"interactionSetId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"currentStatus"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SUBSCRIBED"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"pcapLocation"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"pcapDigest"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"keysLocation"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"keysDigest"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"activePodNodeId"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"activePodPort"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T14:25:54.000Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T14:25:54.000Z"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">85</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"oURL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://node-dumb-listening-server.herokuapp.com/"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"hasPrerenderedHtml"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"expirationPeriod"</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"expiresAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T16:11:45.000Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"interactionSetId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"currentStatus"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CONCLUDED"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"pcapLocation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.pcap"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"pcapDigest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bda2ec6cf68ad6193c25b1cc038b2b0a2a077cba505b73c1181b9e5dc8611bdd"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"keysLocation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.log"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"keysDigest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"751e28e65fe32a04a3c8d97f0a898db089c6ae247d7ee458d70df966c6908185"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"activePodNodeId"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"activePodPort"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T15:11:45.000Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T15:12:11.000Z"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+<p>This endpoint retrieves all of your interactions. Please note that tags are not shown here.</p>
+<h3 id='http-request-2'>HTTP Request</h3>
+<p><code>GET https://gateway.wias.kopjra.com/api/interactions</code></p>
+<h2 id='get-a-specific-interaction'>Get a Specific Interaction</h2><pre class="highlight shell tab-shell"><code>curl <span class="s2">"https://gateway.wias.kopjra.com/api/interactions/85"</span>
+  -H <span class="s2">"Accept: application/json"</span>
+  -H <span class="s2">"Authorization: apikey"</span>
+</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">wias</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'@kopjra/wias'</span><span class="p">);</span>
+
+<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">wias</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'apikey'</span><span class="p">);</span>
+<span class="kd">let</span> <span class="nx">interaction</span> <span class="o">=</span> <span class="nx">await</span> <span class="nx">api</span><span class="p">.</span><span class="nx">interactions</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="mi">85</span><span class="p">);</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">85</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"oURL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://node-dumb-listening-server.herokuapp.com/"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"hasPrerenderedHtml"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"expirationPeriod"</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"expiresAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T16:11:45.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"interactionSetId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"currentStatus"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CONCLUDED"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"pcapLocation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.pcap"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"pcapDigest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bda2ec6cf68ad6193c25b1cc038b2b0a2a077cba505b73c1181b9e5dc8611bdd"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"keysLocation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.log"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"keysDigest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"751e28e65fe32a04a3c8d97f0a898db089c6ae247d7ee458d70df966c6908185"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"activePodNodeId"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"activePodPort"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T15:11:45.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T15:12:11.000Z"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>This endpoint retrieves a specific kitten.</p>
-
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
-<h3 id='http-request-2'>HTTP Request</h3>
-<p><code>GET http://example.com/kittens/&lt;ID&gt;</code></p>
+<p>This endpoint retrieves a specific interaction.</p>
+<h3 id='http-request-3'>HTTP Request</h3>
+<p><code>GET https://gateway.wias.kopjra.com/api/interactions/&lt;ID&gt;</code></p>
 <h3 id='url-parameters'>URL Parameters</h3>
 <table><thead>
 <tr>
@@ -390,52 +474,36 @@ Remember — a happy kitten is an authenticated kitten!
 </thead><tbody>
 <tr>
 <td>ID</td>
-<td>The ID of the kitten to retrieve</td>
+<td>The ID of the interaction to retrieve</td>
 </tr>
 </tbody></table>
-<h2 id='delete-a-specific-kitten'>Delete a Specific Kitten</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<h1 id='common-query-params'>Common Query Params</h1>
+<aside class="notice">
+This section lists query parameters that you can use in all of your requests.
+</aside>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
+<p>The WIAS API uses the following common query parameters:</p>
 
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens/2"</span>
-  -X DELETE
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
-</code></pre>
-<blockquote>
-<p>The above command returns JSON structured like this:</p>
-</blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"deleted"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">":("</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<p>This endpoint deletes a specific kitten.</p>
-<h3 id='http-request-3'>HTTP Request</h3>
-<p><code>DELETE http://example.com/kittens/&lt;ID&gt;</code></p>
-<h3 id='url-parameters-2'>URL Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
+<th>Default</th>
 <th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>ID</td>
-<td>The ID of the kitten to delete</td>
+<td>top</td>
+<td>5</td>
+<td>The maximum number of results to show. Cannot be more than 25 and less than 1.</td>
+</tr>
+<tr>
+<td>skip</td>
+<td>0</td>
+<td>The number of results to skip from the beginning. Used for pagination.</td>
 </tr>
 </tbody></table>
 <h1 id='errors'>Errors</h1>
-<aside class="notice">This error section is stored in a separate file in `includes/_errors.md`. Slate allows you to optionally separate out your docs into many files...just save them to the `includes` folder and add them to the top of your `index.md`'s frontmatter. Files are included in the order listed.</aside>
-
-<p>The Kittn API uses the following error codes:</p>
+<p>The WIAS API uses the following error codes:</p>
 
 <table><thead>
 <tr>
@@ -445,7 +513,7 @@ Remember — a happy kitten is an authenticated kitten!
 </thead><tbody>
 <tr>
 <td>400</td>
-<td>Bad Request -- Your request sucks.</td>
+<td>Bad Request -- Your request is invalid.</td>
 </tr>
 <tr>
 <td>401</td>
@@ -453,15 +521,15 @@ Remember — a happy kitten is an authenticated kitten!
 </tr>
 <tr>
 <td>403</td>
-<td>Forbidden -- The kitten requested is hidden for administrators only.</td>
+<td>Forbidden -- The resource requested is hidden and reserved for administrators only.</td>
 </tr>
 <tr>
 <td>404</td>
-<td>Not Found -- The specified kitten could not be found.</td>
+<td>Not Found -- The specified resource could not be found.</td>
 </tr>
 <tr>
 <td>405</td>
-<td>Method Not Allowed -- You tried to access a kitten with an invalid method.</td>
+<td>Method Not Allowed -- You tried to access a resource with an invalid method.</td>
 </tr>
 <tr>
 <td>406</td>
@@ -469,15 +537,11 @@ Remember — a happy kitten is an authenticated kitten!
 </tr>
 <tr>
 <td>410</td>
-<td>Gone -- The kitten requested has been removed from our servers.</td>
-</tr>
-<tr>
-<td>418</td>
-<td>I&#39;m a teapot.</td>
+<td>Gone -- The resource requested has been removed from our servers.</td>
 </tr>
 <tr>
 <td>429</td>
-<td>Too Many Requests -- You&#39;re requesting too many kittens! Slow down!</td>
+<td>Too Many Requests -- You&#39;re requesting too many resources! Slow down!</td>
 </tr>
 <tr>
 <td>500</td>
@@ -493,8 +557,6 @@ Remember — a happy kitten is an authenticated kitten!
       <div class="dark-box">
           <div class="lang-selector">
                 <a href="#" data-language-name="shell">shell</a>
-                <a href="#" data-language-name="ruby">ruby</a>
-                <a href="#" data-language-name="python">python</a>
                 <a href="#" data-language-name="javascript">javascript</a>
           </div>
       </div>
