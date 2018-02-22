@@ -1,17 +1,16 @@
 ---
-title: API Reference
+title: WIAS API Reference
 
 language_tabs: # must be one of https://git.io/vQNgJ
   - shell
-  - ruby
-  - python
   - javascript
 
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
+  - <a href='https://devs.wias.kopjra.com/signup'>Sign Up for a Developer Key</a>
   - <a href='https://github.com/lord/slate'>Documentation Powered by Slate</a>
 
 includes:
+  - commonquery
   - errors
 
 search: true
@@ -19,221 +18,240 @@ search: true
 
 # Introduction
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+Welcome to Web Interaction Acquisition Service API! You can use our API to access Web Interaction Acquisition Service
+API endpoints, which is everything you need to do to forensically acquire an interaction happening between your customer
+and your services.
 
-We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+If you are still unfamiliar with the process used by WIAS, it'd be better if you read our [introductory documentation](https://www.kopjra.com/wias).
 
-This example API documentation page was created with [Slate](https://github.com/lord/slate). Feel free to edit it and use it as a base for your own API's documentation.
+We have language bindings in Shell and Javascript (Node.js)! You can view code examples in the dark area to the right, and you can
+switch the programming language of the examples with the tabs in the top right. You can [download our clients here](https://devs.wias.kopjra.com/clients).
 
 # Authentication
 
 > To authorize, use this code:
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-```
-
 ```shell
 # With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
+curl "https://gateway.wias.kopjra.com/api"
+  -H "Accept: application/json"
+  -H "Authorization: apikey"
 ```
 
 ```javascript
-const kittn = require('kittn');
+const wias = require('@kopjra/wias');
 
-let api = kittn.authorize('meowmeowmeow');
+let api = wias.authorize('apikey');
 ```
 
-> Make sure to replace `meowmeowmeow` with your API key.
+> Make sure to replace `apikey` with your API key.
 
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
+WIAS uses API keys to allow access to the API. You can register a new WIAS API key at our [developer portal](https://devs.wias.kopjra.com/).
 
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
+WIAS expects for the API key to be included in all API requests to the server in a header that looks like the following:
 
-`Authorization: meowmeowmeow`
+`Authorization: apikey`
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+You must replace <code>apikey</code> with your personal API key.
 </aside>
 
-# Kittens
+# Interactions
 
-## Get All Kittens
+The Interaction represents the minimum entity that can be forensically acquired, stored and retrieved. It represents a
+specific action done by one of your users, plus the context (ie: the web page that he/she sees when he/she does that
+action).
 
-```ruby
-require 'kittn'
+## Create a New Interaction
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
+Before you can acquire an action done by one of your users (and its context), you need to create a new Interaction, and
+redirect your user to the forward URL specifically provided by WIAS: you will find this URL (<code>fURL</code>) inside
+the body of the response of this call.
 
-```python
-import kittn
+<aside class="notice">
+At the end of this call, remember to redirect your user to <code>fURL</code>!
+</aside>
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
+Since we implement none of your backend business logic, the user's request will eventually be re-submitted directly by
+the user to your web server, so you must provide us with the <code>oURL</code> locating the endpoint where the user would
+re-submit his request.
+
+In addition, you need to provide us with some HTML that will be the context on which the user is going to do his action.
+The user's action could be for instance a form submission (a <code>POST</code> or a <code>GET</code>) or the click on a
+link (only a <code>GET</code>). In both cases, you have to pre-render the HTML on your server and give it to us, as well
+as the indication about the HTTP Method of your user's action.
+
+<aside class="notice">
+Within your pre-rendered HTML, remember to replace the URL where you originally intended to handle the user action with
+ the <code><%= e_url %></code> placeholder. You'd put that URL in the field <code>oURL</code> of the Create Interaction
+ request.
+</aside>
+
+Finally, you can also decide to put any tag on your interaction.
+
+<aside class="warning">
+Future retrievals requests can only done by matching Interaction ID or custom tags! We won't be able to fetch the data
+contained in your pre-rendered HTML or in the content submitted by your user's action.
+</aside>
+
 
 ```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
+curl "https://gateway.wias.kopjra.com/api/interactions"
+  -X DELETE
+  -d '{"oURL": "http://someurl.com", "oMethod": "POST", "prerenderedHtml": "<!doctype html><html><head><title>Title</title></head><body><p><strong>E_URL: </strong><%= e_url %></p><p><strong>F_URL: </strong><%= f_url %></p><p>Sample text.</p><form action="<%= e_url %>" method="post"><fieldset><legend>Stuffity stuff:</legend><input type="radio" name="st1" value="true">Yep</input><input type="radio" name="st1" value="false">Nay</input></fieldset><fieldset><legend>Lalaland:</legend><input type="radio" name="st2" value="true">Great movie</input><input type="radio" name="st2" value="false">Bad movie</input></fieldset><input type="submit" value="Invia" /></form></body></html>", "tags": {"foo": "bar", "baz": "woo"}}'
+  -H "Accept: application/json"
+  -H "Content-Type: application/json"
+  -H "Authorization: apikey"
 ```
 
 ```javascript
-const kittn = require('kittn');
+const wias = require('@kopjra/wias');
 
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
+let api = wias.authorize('apikey');
+let interaction = {
+  "oURL": "http://someurl.com",
+  "oMethod": "POST",
+  "prerenderedHtml": "<!doctype html><html><head><title>Title</title></head><body><p><strong>E_URL: </strong><%= e_url %></p><p><strong>F_URL: </strong><%= f_url %></p><p>Sample text.</p><form action="<%= e_url %>" method="post"><fieldset><legend>Stuffity stuff:</legend><input type="radio" name="st1" value="true">Yep</input><input type="radio" name="st1" value="false">Nay</input></fieldset><fieldset><legend>Lalaland:</legend><input type="radio" name="st2" value="true">Great movie</input><input type="radio" name="st2" value="false">Bad movie</input></fieldset><input type="submit" value="Invia" /></form></body></html>",
+  "tags": {
+    "foo": "bar",
+    "baz": "woo"
+  }
+};
+let max = api.interactions.create();
+```
+
+> The above command returns JSON structured like this:
+
+```json
+{
+  "id": 86,
+  "fUrl" : "https://gateway.wias.kopjra.com/api/i/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpX2lkIjo4OSwiaWF0IjoxNTE5MjEwODc4LCJleHAiOjE1MTkyMTQ0Nzh9.QLoyvZPl2_KgxyupbjWJXESwOnkhzGDo4vr4i8GjYa8"
+}
+```
+
+### HTTP Request
+
+`POST https://gateway.wias.kopjra.com/api/interactions`
+
+### JSON Body Keys
+
+Parameter | Mandatory | Description
+--------- | ----------- | -----------
+oURL | Yes | The URL where the request was originally intended to go. At the end of the acquisition process, the user will re-submit the request to this URL. Your service should be ready to serve the user's request here.
+oMethod | Yes | The type of request to acquire (and re-submit to your service). Only 'POST' and 'GET' supported.
+prerenderedHtml | Yes | The pre-prendered HTML to be displayed by our web server. It must contain the string '<%= e_url %>' somewhere.
+tags | No | An object representing the tags to be added to the Interaction. Note: tag names can only contain US-ASCII letters and/or numbers, whereas tag values can be any UTF-8 string.
+
+## Get All Interactions
+
+You can use this endpoint to get all of your Interactions. In the future, you will also be able to search among
+Interactions using custom tags (still to be implemented).
+
+```shell
+curl "https://gateway.wias.kopjra.com/api/interactions"
+  -H "Authorization: apikey"
+```
+
+```javascript
+const wias = require('@kopjra/wias');
+
+let api = wias.authorize('apikey');
+let interactions = await api.interactions.get();
 ```
 
 > The above command returns JSON structured like this:
 
 ```json
 [
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
+    {
+        "id": 83,
+        "oURL": "http://node-dumb-listening-server.herokuapp.com/",
+        "hasPrerenderedHtml": true,
+        "expirationPeriod": 3600,
+        "expiresAt": "2018-02-14T14:25:57.000Z",
+        "interactionSetId": 1,
+        "currentStatus": "SUBSCRIBED",
+        "pcapLocation": null,
+        "pcapDigest": null,
+        "keysLocation": null,
+        "keysDigest": null,
+        "activePodNodeId": null,
+        "activePodPort": null,
+        "createdAt": "2018-02-14T14:25:54.000Z",
+        "updatedAt": "2018-02-14T14:25:54.000Z"
+    },
+    {
+        "id": 85,
+        "oURL": "http://node-dumb-listening-server.herokuapp.com/",
+        "hasPrerenderedHtml": true,
+        "expirationPeriod": 3600,
+        "expiresAt": "2018-02-14T16:11:45.000Z",
+        "interactionSetId": 1,
+        "currentStatus": "CONCLUDED",
+        "pcapLocation": "cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.pcap",
+        "pcapDigest": "bda2ec6cf68ad6193c25b1cc038b2b0a2a077cba505b73c1181b9e5dc8611bdd",
+        "keysLocation": "cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.log",
+        "keysDigest": "751e28e65fe32a04a3c8d97f0a898db089c6ae247d7ee458d70df966c6908185",
+        "activePodNodeId": null,
+        "activePodPort": null,
+        "createdAt": "2018-02-14T15:11:45.000Z",
+        "updatedAt": "2018-02-14T15:12:11.000Z"
+    }
 ]
 ```
 
-This endpoint retrieves all kittens.
+This endpoint retrieves all of your interactions. Please note that tags are not shown here.
 
 ### HTTP Request
 
-`GET http://example.com/api/kittens`
+`GET https://gateway.wias.kopjra.com/api/interactions`
 
-### Query Parameters
 
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
-
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-
-## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
+## Get a Specific Interaction
 
 ```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
+curl "https://gateway.wias.kopjra.com/api/interactions/85"
+  -H "Accept: application/json"
+  -H "Authorization: apikey"
 ```
 
 ```javascript
-const kittn = require('kittn');
+const wias = require('@kopjra/wias');
 
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
+let api = wias.authorize('apikey');
+let interaction = await api.interactions.get(85);
 ```
 
 > The above command returns JSON structured like this:
 
 ```json
 {
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+    "id": 85,
+    "oURL": "http://node-dumb-listening-server.herokuapp.com/",
+    "hasPrerenderedHtml": true,
+    "expirationPeriod": 3600,
+    "expiresAt": "2018-02-14T16:11:45.000Z",
+    "interactionSetId": 1,
+    "currentStatus": "CONCLUDED",
+    "pcapLocation": "cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.pcap",
+    "pcapDigest": "bda2ec6cf68ad6193c25b1cc038b2b0a2a077cba505b73c1181b9e5dc8611bdd",
+    "keysLocation": "cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.log",
+    "keysDigest": "751e28e65fe32a04a3c8d97f0a898db089c6ae247d7ee458d70df966c6908185",
+    "activePodNodeId": null,
+    "activePodPort": null,
+    "createdAt": "2018-02-14T15:11:45.000Z",
+    "updatedAt": "2018-02-14T15:12:11.000Z"
 }
 ```
 
-This endpoint retrieves a specific kitten.
-
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+This endpoint retrieves a specific interaction.
 
 ### HTTP Request
 
-`GET http://example.com/kittens/<ID>`
+`GET https://gateway.wias.kopjra.com/api/interactions/<ID>`
 
 ### URL Parameters
 
 Parameter | Description
 --------- | -----------
-ID | The ID of the kitten to retrieve
-
-## Delete a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -X DELETE
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.delete(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "deleted" : ":("
-}
-```
-
-This endpoint deletes a specific kitten.
-
-### HTTP Request
-
-`DELETE http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to delete
-
+ID | The ID of the interaction to retrieve
