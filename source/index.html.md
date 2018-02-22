@@ -6,8 +6,8 @@ language_tabs: # must be one of https://git.io/vQNgJ
   - javascript
 
 toc_footers:
-  - <a href='https://devs.wias.kopjra.com/signup'>Sign Up for a Developer Key</a>
-  - <a href='https://github.com/lord/slate'>Documentation Powered by Slate</a>
+  - <a href='https://github.com/Kopjra/wias-apidoc/wiki'>Developers Wiki</a>
+  - <a href='https://github.com/lord/slate'>Powered by Slate</a>
 
 includes:
   - commonquery
@@ -22,10 +22,10 @@ Welcome to Web Interaction Acquisition Service API! You can use our API to acces
 API endpoints, which is everything you need to do to forensically acquire an interaction happening between your customer
 and your services.
 
-If you are still unfamiliar with the process used by WIAS, it'd be better if you read our [introductory documentation](https://www.kopjra.com/wias).
+If you are still unfamiliar with the process used by WIAS, it'd be better if you read our [developers wiki](https://github.com/Kopjra/wias-apidoc/wiki).
 
 We have language bindings in Shell and Javascript (Node.js)! You can view code examples in the dark area to the right, and you can
-switch the programming language of the examples with the tabs in the top right. You can [download our clients here](https://devs.wias.kopjra.com/clients).
+switch the programming language of the examples with the tabs in the top right.
 
 # Authentication
 
