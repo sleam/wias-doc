@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Kopjra/wias-apidoc/master/source/images/logo.png" alt="Kopjra Web Acquisition: API Documentation" width="226">
+  <img src="https://s3-eu-west-1.amazonaws.com/kopjra-public/wias/logo.png" alt="Kopjra Web Acquisition logo" width="226">
 </p>
 
-<p align="center">Kopjra Web Acquisition</p>
+<p align="center"><strong>Kopjra Web Acquisition</strong><br />Developers Documentation</p>
 
 <p align="center">Check out the full documentation <a href="https://github.com/Kopjra/wias-apidoc/wiki">in the wiki of this repository</a></p>
 
