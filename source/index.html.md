@@ -6,7 +6,7 @@ language_tabs: # must be one of https://git.io/vQNgJ
   - javascript
 
 toc_footers:
-  - <a href='https://github.com/Kopjra/wias-apidoc/wiki'>Developers Wiki</a>
+  - <a href='https://github.com/Kopjra/wias-doc/wiki'>Developers Wiki</a>
   - <a href='https://github.com/lord/slate'>Powered by Slate</a>
 
 includes:
