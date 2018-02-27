@@ -613,3 +613,136 @@ html, body {
 .highlight, .highlight .w {
   background-color: $code-bg;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// CUSTOM CSS
+////////////////////////////////////////////////////////////////////////////////
+
+a {
+  background-color: transparent;
+  color: #419ed8
+}
+
+html {
+  color: #444;
+  background-color: #F7F7F7;
+}
+
+#toc > ul > li > a > span {
+  background-color: #419ed8;
+}
+
+.toc-wrapper {
+  background: url(../images/AbstractTriangles.svg) no-repeat center center scroll;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.toc-wrapper > .search input {
+  background: transparent;
+}
+
+.toc-wrapper .search-results {
+  background: #2E3336
+}
+
+.toc-wrapper .toc-link.active {
+  background-color: #419ed8;
+}
+
+.toc-wrapper .toc-link.active-parent {
+  background-color: transparent;
+}
+
+.toc-wrapper .toc-list-h2 {
+  background-color: transparent;
+}
+
+.toc-wrapper .toc-footer {
+  border-top: 1px solid #444;
+}
+
+.page-wrapper {
+  background-color: #F7F7F7;
+}
+
+.lang-selector {
+  background-color: #202020;
+}
+
+.content h1 {
+  font-family: 'Lato', sans-serif;
+  font-size: 2em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-top: 5px solid #444;
+  border-bottom: none;
+  background-color: transparent;
+}
+
+.content h2 {
+  font-family: 'Lato', sans-serif;
+  font-size: 1.5em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-top: none;
+}
+
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+  color: #777;
+}
+
+.content table td {
+  padding: 10px
+}
+
+.content table tbody tr {
+  border-left: 1px solid #d5d5d5;
+  border-right: 1px solid #d5d5d5;
+}
+
+.content table th {
+  padding: 5px 10px;
+  border-bottom: 1px solid #d5d5d5;
+  vertical-align: bottom
+}
+
+.content table tr:last-child {
+  border-bottom: 1px solid #d5d5d5
+}
+
+.content table tr:nth-child(odd) > td {
+  background-color: white
+}
+
+.content table tr:nth-child(even) > td {
+  background-color: #fafafa
+}
+
+.content aside {
+  background: rgba(65, 158, 216, 0.24);
+}
+
+.content aside.warning {
+  background-color: rgba(255, 20, 0, 0.26)
+}
+
+.content aside.success {
+  background-color: rgba(44, 217, 131, 0.26)
+}
+
+.content .search-highlight {
+  border: none;
+  color: #444;
+  background: rgb(255, 216, 0);
+}
+
+.content blockquote,
+.content pre {
+  background-color: #202020;
+}
