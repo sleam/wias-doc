@@ -259,7 +259,7 @@
 API endpoints, which is everything you need to do to forensically acquire an interaction happening between your customer
 and your services.</p>
 
-<p>If you are still unfamiliar with the process used by WIAS, it&#39;d be better if you read our <a href="https://github.com/Kopjra/wias-apidoc/wiki">developers wiki</a>.</p>
+<p>If you are still unfamiliar with the process used by WIAS, it&#39;d be better if you read our <a href="https://github.com/Kopjra/wias-doc/wiki">developers wiki</a>.</p>
 
 <p>We have language bindings in Shell and Javascript (Node.js)! You can view code examples in the dark area to the right, and you can
 switch the programming language of the examples with the tabs in the top right.</p>
@@ -305,16 +305,24 @@ At the end of this call, remember to redirect your user to <code>fURL</code>!
 the user to your web server, so you must provide us with the <code>oURL</code> locating the endpoint where the user would
 re-submit his request.</p>
 
-<p>In addition, you need to provide us with some HTML that will be the context on which the user is going to do his action.
-The user&#39;s action could be for instance a form submission (a <code>POST</code> or a <code>GET</code>) or the click on a
-link (only a <code>GET</code>). In both cases, you have to pre-render the HTML on your server and give it to us, as well
-as the indication about the HTTP Method of your user&#39;s action.</p>
+<p>This call supports two different variations: <code>full</code> or <code>no_html</code>: the first one corresponds to the case
+of <em>Server Side Rendered Web Application Full Interaction</em> and the second one corresponds to the case of
+<em>Single Page Application Contextless Interaction</em>.</p>
+
+<p>If you use the <code>full</code> variation, you need to provide us with some HTML that will be the context on which the
+user is going to do his action. The user&#39;s action could be for instance a form submission (a <code>POST</code> or a
+<code>GET</code>) or the click on a link (only a <code>GET</code>). In both cases, you have to pre-render the HTML on
+your server and give it to us, as well as the indication about the HTTP Method of your user&#39;s action.</p>
 
 <aside class="notice">
 Within your pre-rendered HTML, remember to replace the URL where you originally intended to handle the user action with
  the <code><%= e_url %></code> placeholder. You'd put that URL in the field <code>oURL</code> of the Create Interaction
  request.
 </aside>
+
+<p>Otherwise, if you use the <code>no_html</code> variation, WIAS will just acquire the single action coming from the User
+to your service (MITM&#39;ed by WIAS) with no information about its context. In this case, you will not have to provide us
+any pre-rendered HTML.</p>
 
 <p>Finally, you can also decide to put any tag on your interaction.</p>
 
@@ -324,7 +332,7 @@ contained in your pre-rendered HTML or in the content submitted by your user's a
 </aside>
 <pre class="highlight shell tab-shell"><code>curl <span class="s2">"https://gateway.wias.kopjra.com/api/interactions"</span>
   -X DELETE
-  -d <span class="s1">'{"oURL": "http://someurl.com", "oMethod": "POST", "prerenderedHtml": "&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;Title&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;strong&gt;E_URL: &lt;/strong&gt;&lt;%= e_url %&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;F_URL: &lt;/strong&gt;&lt;%= f_url %&gt;&lt;/p&gt;&lt;p&gt;Sample text.&lt;/p&gt;&lt;form action="&lt;%= e_url %&gt;" method="post"&gt;&lt;fieldset&gt;&lt;legend&gt;Stuffity stuff:&lt;/legend&gt;&lt;input type="radio" name="st1" value="true"&gt;Yep&lt;/input&gt;&lt;input type="radio" name="st1" value="false"&gt;Nay&lt;/input&gt;&lt;/fieldset&gt;&lt;fieldset&gt;&lt;legend&gt;Lalaland:&lt;/legend&gt;&lt;input type="radio" name="st2" value="true"&gt;Great movie&lt;/input&gt;&lt;input type="radio" name="st2" value="false"&gt;Bad movie&lt;/input&gt;&lt;/fieldset&gt;&lt;input type="submit" value="Invia" /&gt;&lt;/form&gt;&lt;/body&gt;&lt;/html&gt;", "tags": {"foo": "bar", "baz": "woo"}}'</span>
+  -d <span class="s1">'{"oURL": "http://someurl.com", "variation": "full", "prerenderedHtml": "&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;Title&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;strong&gt;E_URL: &lt;/strong&gt;&lt;%= e_url %&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;F_URL: &lt;/strong&gt;&lt;%= f_url %&gt;&lt;/p&gt;&lt;p&gt;Sample text.&lt;/p&gt;&lt;form action="&lt;%= e_url %&gt;" method="post"&gt;&lt;fieldset&gt;&lt;legend&gt;Stuffity stuff:&lt;/legend&gt;&lt;input type="radio" name="st1" value="true"&gt;Yep&lt;/input&gt;&lt;input type="radio" name="st1" value="false"&gt;Nay&lt;/input&gt;&lt;/fieldset&gt;&lt;fieldset&gt;&lt;legend&gt;Lalaland:&lt;/legend&gt;&lt;input type="radio" name="st2" value="true"&gt;Great movie&lt;/input&gt;&lt;input type="radio" name="st2" value="false"&gt;Bad movie&lt;/input&gt;&lt;/fieldset&gt;&lt;input type="submit" value="Invia" /&gt;&lt;/form&gt;&lt;/body&gt;&lt;/html&gt;", "tags": {"foo": "bar", "baz": "woo"}}'</span>
   -H <span class="s2">"Accept: application/json"</span>
   -H <span class="s2">"Content-Type: application/json"</span>
   -H <span class="s2">"Authorization: apikey"</span>
@@ -333,7 +341,7 @@ contained in your pre-rendered HTML or in the content submitted by your user's a
 <span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">wias</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'apikey'</span><span class="p">);</span>
 <span class="kd">let</span> <span class="nx">interaction</span> <span class="o">=</span> <span class="p">{</span>
   <span class="s2">"oURL"</span><span class="p">:</span> <span class="s2">"http://someurl.com"</span><span class="p">,</span>
-  <span class="s2">"oMethod"</span><span class="p">:</span> <span class="s2">"POST"</span><span class="p">,</span>
+  <span class="s2">"variation"</span><span class="p">:</span> <span class="s2">"full"</span><span class="p">,</span>
   <span class="s2">"prerenderedHtml"</span><span class="p">:</span> <span class="s2">"&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;Title&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;strong&gt;E_URL: &lt;/strong&gt;&lt;%= e_url %&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;F_URL: &lt;/strong&gt;&lt;%= f_url %&gt;&lt;/p&gt;&lt;p&gt;Sample text.&lt;/p&gt;&lt;form action="</span><span class="o">&lt;%=</span> <span class="nx">e_url</span> <span class="o">%&gt;</span><span class="s2">" method="</span><span class="nx">post</span><span class="s2">"&gt;&lt;fieldset&gt;&lt;legend&gt;Stuffity stuff:&lt;/legend&gt;&lt;input type="</span><span class="nx">radio</span><span class="s2">" name="</span><span class="nx">st1</span><span class="s2">" value="</span><span class="kc">true</span><span class="s2">"&gt;Yep&lt;/input&gt;&lt;input type="</span><span class="nx">radio</span><span class="s2">" name="</span><span class="nx">st1</span><span class="s2">" value="</span><span class="kc">false</span><span class="s2">"&gt;Nay&lt;/input&gt;&lt;/fieldset&gt;&lt;fieldset&gt;&lt;legend&gt;Lalaland:&lt;/legend&gt;&lt;input type="</span><span class="nx">radio</span><span class="s2">" name="</span><span class="nx">st2</span><span class="s2">" value="</span><span class="kc">true</span><span class="s2">"&gt;Great movie&lt;/input&gt;&lt;input type="</span><span class="nx">radio</span><span class="s2">" name="</span><span class="nx">st2</span><span class="s2">" value="</span><span class="kc">false</span><span class="s2">"&gt;Bad movie&lt;/input&gt;&lt;/fieldset&gt;&lt;input type="</span><span class="nx">submit</span><span class="s2">" value="</span><span class="nx">Invia</span><span class="s2">" /&gt;&lt;/form&gt;&lt;/body&gt;&lt;/html&gt;"</span><span class="p">,</span>
   <span class="s2">"tags"</span><span class="p">:</span> <span class="p">{</span>
     <span class="s2">"foo"</span><span class="p">:</span> <span class="s2">"bar"</span><span class="p">,</span>
@@ -365,14 +373,14 @@ contained in your pre-rendered HTML or in the content submitted by your user's a
 <td>The URL where the request was originally intended to go. At the end of the acquisition process, the user will re-submit the request to this URL. Your service should be ready to serve the user&#39;s request here.</td>
 </tr>
 <tr>
-<td>oMethod</td>
-<td>Yes</td>
-<td>The type of request to acquire (and re-submit to your service). Only &#39;POST&#39; and &#39;GET&#39; supported.</td>
+<td>variation</td>
+<td>No</td>
+<td>The variation you want to use. Choose between &#39;full&#39; (default) and &#39;no_html&#39;.</td>
 </tr>
 <tr>
 <td>prerenderedHtml</td>
-<td>Yes</td>
-<td>The pre-prendered HTML to be displayed by our web server. It must contain the string &#39;&lt;%= e_url %&gt;&#39; somewhere.</td>
+<td>No*</td>
+<td>The pre-prendered HTML to be displayed by our web server. It must contain the string &#39;&lt;%= e_url %&gt;&#39; somewhere. Mandatory if the variation is undefined or &#39;full&#39;.</td>
 </tr>
 <tr>
 <td>tags</td>
@@ -430,7 +438,8 @@ Interactions using custom tags (still to be implemented).</p>
     </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
 </span></code></pre>
-<p>This endpoint retrieves all of your interactions. Please note that tags are not shown here.</p>
+<p>This endpoint retrieves all of your interactions. Please note that tags and attached files are not shown here: they are
+shown on a single-interaction basis.</p>
 <h3 id='http-request-2'>HTTP Request</h3>
 <p><code>GET https://gateway.wias.kopjra.com/api/interactions</code></p>
 <h2 id='get-a-specific-interaction'>Get a Specific Interaction</h2><pre class="highlight shell tab-shell"><code>curl <span class="s2">"https://gateway.wias.kopjra.com/api/interactions/85"</span>
@@ -459,10 +468,20 @@ Interactions using custom tags (still to be implemented).</p>
     </span><span class="s2">"activePodNodeId"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
     </span><span class="s2">"activePodPort"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
     </span><span class="s2">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T15:11:45.000Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T15:12:11.000Z"</span><span class="w">
+    </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-14T15:12:11.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"foo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bar"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"baz"</span><span class="p">:</span><span class="w"> </span><span class="s2">"woo"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="s2">"attachedFiles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"pcapUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://kopjra-test.s3.eu-west-1.amazonaws.com/cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.pcap?AWSAccessKeyId=AKIAJLDCCQVSFF5WBFOA&amp;Expires=1519736636&amp;Signature=2MYIj6qZlXLs7oN1NQXwf9oC5E0%3D"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"keysUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://kopjra-test.s3.eu-west-1.amazonaws.com/cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.log?AWSAccessKeyId=AKIAJLDCCQVSFF5WBFOA&amp;Expires=1519736636&amp;Signature=ZlofsXqt3%2BrDtYrvk%2Bh4IVcwSlg%3D"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"xmlUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://kopjra-test.s3.eu-west-1.amazonaws.com/wias/interactions/xmls/85.xml?AWSAccessKeyId=AKIAJLDCCQVSFF5WBFOA&amp;Expires=1519736636&amp;Signature=CY%2FuXlta6f83c30e6mKzOPdbe4o%3D"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>This endpoint retrieves a specific interaction.</p>
+<p>This endpoint retrieves a specific interaction, including any tag and signed URLs that can be used to download any
+available attached file.</p>
 <h3 id='http-request-3'>HTTP Request</h3>
 <p><code>GET https://gateway.wias.kopjra.com/api/interactions/&lt;ID&gt;</code></p>
 <h3 id='url-parameters'>URL Parameters</h3>
