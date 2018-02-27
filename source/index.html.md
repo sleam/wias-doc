@@ -22,7 +22,7 @@ Welcome to Web Interaction Acquisition Service API! You can use our API to acces
 API endpoints, which is everything you need to do to forensically acquire an interaction happening between your customer
 and your services.
 
-If you are still unfamiliar with the process used by WIAS, it'd be better if you read our [developers wiki](https://github.com/Kopjra/wias-apidoc/wiki).
+If you are still unfamiliar with the process used by WIAS, it'd be better if you read our [developers wiki](https://github.com/Kopjra/wias-doc/wiki).
 
 We have language bindings in Shell and Javascript (Node.js)! You can view code examples in the dark area to the right, and you can
 switch the programming language of the examples with the tabs in the top right.
@@ -76,16 +76,24 @@ Since we implement none of your backend business logic, the user's request will 
 the user to your web server, so you must provide us with the <code>oURL</code> locating the endpoint where the user would
 re-submit his request.
 
-In addition, you need to provide us with some HTML that will be the context on which the user is going to do his action.
-The user's action could be for instance a form submission (a <code>POST</code> or a <code>GET</code>) or the click on a
-link (only a <code>GET</code>). In both cases, you have to pre-render the HTML on your server and give it to us, as well
-as the indication about the HTTP Method of your user's action.
+This call supports two different variations: <code>full</code> or <code>no_html</code>: the first one corresponds to the case
+of <em>Server Side Rendered Web Application Full Interaction</em> and the second one corresponds to the case of
+<em>Single Page Application Contextless Interaction</em>.
+
+If you use the <code>full</code> variation, you need to provide us with some HTML that will be the context on which the
+user is going to do his action. The user's action could be for instance a form submission (a <code>POST</code> or a
+<code>GET</code>) or the click on a link (only a <code>GET</code>). In both cases, you have to pre-render the HTML on
+your server and give it to us, as well as the indication about the HTTP Method of your user's action.
 
 <aside class="notice">
 Within your pre-rendered HTML, remember to replace the URL where you originally intended to handle the user action with
  the <code><%= e_url %></code> placeholder. You'd put that URL in the field <code>oURL</code> of the Create Interaction
  request.
 </aside>
+
+Otherwise, if you use the <code>no_html</code> variation, WIAS will just acquire the single action coming from the User
+to your service (MITM'ed by WIAS) with no information about its context. In this case, you will not have to provide us
+any pre-rendered HTML.
 
 Finally, you can also decide to put any tag on your interaction.
 
@@ -98,7 +106,7 @@ contained in your pre-rendered HTML or in the content submitted by your user's a
 ```shell
 curl "https://gateway.wias.kopjra.com/api/interactions"
   -X DELETE
-  -d '{"oURL": "http://someurl.com", "oMethod": "POST", "prerenderedHtml": "<!doctype html><html><head><title>Title</title></head><body><p><strong>E_URL: </strong><%= e_url %></p><p><strong>F_URL: </strong><%= f_url %></p><p>Sample text.</p><form action="<%= e_url %>" method="post"><fieldset><legend>Stuffity stuff:</legend><input type="radio" name="st1" value="true">Yep</input><input type="radio" name="st1" value="false">Nay</input></fieldset><fieldset><legend>Lalaland:</legend><input type="radio" name="st2" value="true">Great movie</input><input type="radio" name="st2" value="false">Bad movie</input></fieldset><input type="submit" value="Invia" /></form></body></html>", "tags": {"foo": "bar", "baz": "woo"}}'
+  -d '{"oURL": "http://someurl.com", "variation": "full", "prerenderedHtml": "<!doctype html><html><head><title>Title</title></head><body><p><strong>E_URL: </strong><%= e_url %></p><p><strong>F_URL: </strong><%= f_url %></p><p>Sample text.</p><form action="<%= e_url %>" method="post"><fieldset><legend>Stuffity stuff:</legend><input type="radio" name="st1" value="true">Yep</input><input type="radio" name="st1" value="false">Nay</input></fieldset><fieldset><legend>Lalaland:</legend><input type="radio" name="st2" value="true">Great movie</input><input type="radio" name="st2" value="false">Bad movie</input></fieldset><input type="submit" value="Invia" /></form></body></html>", "tags": {"foo": "bar", "baz": "woo"}}'
   -H "Accept: application/json"
   -H "Content-Type: application/json"
   -H "Authorization: apikey"
@@ -110,7 +118,7 @@ const wias = require('@kopjra/wias');
 let api = wias.authorize('apikey');
 let interaction = {
   "oURL": "http://someurl.com",
-  "oMethod": "POST",
+  "variation": "full",
   "prerenderedHtml": "<!doctype html><html><head><title>Title</title></head><body><p><strong>E_URL: </strong><%= e_url %></p><p><strong>F_URL: </strong><%= f_url %></p><p>Sample text.</p><form action="<%= e_url %>" method="post"><fieldset><legend>Stuffity stuff:</legend><input type="radio" name="st1" value="true">Yep</input><input type="radio" name="st1" value="false">Nay</input></fieldset><fieldset><legend>Lalaland:</legend><input type="radio" name="st2" value="true">Great movie</input><input type="radio" name="st2" value="false">Bad movie</input></fieldset><input type="submit" value="Invia" /></form></body></html>",
   "tags": {
     "foo": "bar",
@@ -138,8 +146,8 @@ let max = api.interactions.create();
 Parameter | Mandatory | Description
 --------- | ----------- | -----------
 oURL | Yes | The URL where the request was originally intended to go. At the end of the acquisition process, the user will re-submit the request to this URL. Your service should be ready to serve the user's request here.
-oMethod | Yes | The type of request to acquire (and re-submit to your service). Only 'POST' and 'GET' supported.
-prerenderedHtml | Yes | The pre-prendered HTML to be displayed by our web server. It must contain the string '<%= e_url %>' somewhere.
+variation | No | The variation you want to use. Choose between 'full' (default) and 'no_html'.
+prerenderedHtml | No* | The pre-prendered HTML to be displayed by our web server. It must contain the string '<%= e_url %>' somewhere. Mandatory if the variation is undefined or 'full'.
 tags | No | An object representing the tags to be added to the Interaction. Note: tag names can only contain US-ASCII letters and/or numbers, whereas tag values can be any UTF-8 string.
 
 ## Get All Interactions
@@ -200,7 +208,8 @@ let interactions = await api.interactions.get();
 ]
 ```
 
-This endpoint retrieves all of your interactions. Please note that tags are not shown here.
+This endpoint retrieves all of your interactions. Please note that tags and attached files are not shown here: they are
+shown on a single-interaction basis.
 
 ### HTTP Request
 
@@ -240,11 +249,21 @@ let interaction = await api.interactions.get(85);
     "activePodNodeId": null,
     "activePodPort": null,
     "createdAt": "2018-02-14T15:11:45.000Z",
-    "updatedAt": "2018-02-14T15:12:11.000Z"
+    "updatedAt": "2018-02-14T15:12:11.000Z",
+    "tags": {
+      "foo": "bar",
+      "baz": "woo"
+    }
+    "attachedFiles": {
+        "pcapUrl": "https://kopjra-test.s3.eu-west-1.amazonaws.com/cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.pcap?AWSAccessKeyId=AKIAJLDCCQVSFF5WBFOA&Expires=1519736636&Signature=2MYIj6qZlXLs7oN1NQXwf9oC5E0%3D",
+        "keysUrl": "https://kopjra-test.s3.eu-west-1.amazonaws.com/cws/uuid/a18e65b8-6feb-4dd1-a382-773b5c40f62c.log?AWSAccessKeyId=AKIAJLDCCQVSFF5WBFOA&Expires=1519736636&Signature=ZlofsXqt3%2BrDtYrvk%2Bh4IVcwSlg%3D",
+        "xmlUrl": "https://kopjra-test.s3.eu-west-1.amazonaws.com/wias/interactions/xmls/85.xml?AWSAccessKeyId=AKIAJLDCCQVSFF5WBFOA&Expires=1519736636&Signature=CY%2FuXlta6f83c30e6mKzOPdbe4o%3D"
+    }
 }
 ```
 
-This endpoint retrieves a specific interaction.
+This endpoint retrieves a specific interaction, including any tag and signed URLs that can be used to download any
+available attached file.
 
 ### HTTP Request
 
